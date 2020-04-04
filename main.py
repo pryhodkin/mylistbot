@@ -10,7 +10,7 @@ def GenerateId():
     return consts.iden
 
 
-bot = telebot.TeleBot("1215734535:AAFj1YBR8FIDJMIp2tpIhBvqLuv_EYX15uA")
+bot = telebot.TeleBot(str(os.environ['BOT_TOKEN']))
 
 connect_vars = classes.DatabaseVars(str(os.environ['DATABASE_URL']))
 
