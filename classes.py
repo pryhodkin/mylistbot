@@ -7,16 +7,7 @@ class Database:
         self.connection = connection
 
     def ToSQLString(self, string):
-        if string == None:
-            return "None"
-
-        i = 0
-        result = ""
-        while i < len(string):
-            if(i == "'"):
-                result += "'"
-            result += string[i]
-            i += 1
+        result = string.replace("'", "''")
         return result
 
     def AddItemToList(self, item, user):
@@ -67,7 +58,9 @@ class Database:
         cursor = self.connection.cursor()
         updator = self.connection.cursor()
         cursor.execute("""
-                        SELECT id FROM list;
+                        SELECT id
+                        FROM list
+                        ORDER BY id;
                       """)
         n = 0
         for i in cursor:
