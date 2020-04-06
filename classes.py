@@ -1,4 +1,5 @@
 import psycopg2
+import os
 
 
 class Database:
@@ -6,12 +7,8 @@ class Database:
     def __init__(self, connection):
         self.connection = connection
 
-    def ToSQLString(self, string):
-        result = string.replace("'", "''")
-        return result
-
     def AddItemToList(self, item, user):
-        item = self.ToSQLString(item)
+        item = item.replace("'", "''")
         cursor = self.connection.cursor()
         cursor.execute(f"""
                             INSERT INTO list(id, author, item)
@@ -24,10 +21,12 @@ class Database:
     def GetList(self):
         cursor = self.connection.cursor()
         cursor.execute("""SELECT * FROM list;""")
-        result = ""
+        result = ''
         for item in cursor:
             result += str(item[0]) + '. ' + str(item[2]) + '\n'
         cursor.close()
+        if result == '':
+            return 'List is empty.'
         return result
 
     def DeleteFromList(self, id):
@@ -66,7 +65,7 @@ class Database:
         for i in cursor:
             n += 1
             updator.execute(f"""UPDATE list SET id = {n}
-                               WHERE id = {i[0]}""")
+                               WHERE id = {i[0]};""")
         self.connection.commit()
         updator.close()
         cursor.close()
@@ -105,10 +104,20 @@ def DatabaseVars(connect_string):
     return connection
 
 def GetDelIndex(string):
-    string = string.lower()
-    string = string.replace(" ", "")
-    string = string.replace("del", "")
-    string = str(string)
+    string = string.lower().replace(" ", "").replace("del", "")
+
     if string.isdecimal() == False or string.isdigit() == False:
         return ''
     return int(string)
+
+def IsAdmin(admins, user):
+    for admin in admins:
+        if user == admin:
+            return True
+    return False
+
+def AdminList():
+    admins = str(os.environ['ADMINS']).split(r',')
+    for i in range(0, len(admins)):
+        admins[i] = int(admins[i])
+    return admins
